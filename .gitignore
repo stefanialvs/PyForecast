@@ -1,0 +1,12 @@
+*.pyc
+*.DS_Store
+*.vscode
+*.ipynb_checkpoints
+data/
+!results/
+results/*
+*.so
+*.dll
+*.exe
+*.c
+build/
