@@ -18,6 +18,8 @@ The repository contains the following set of benchmark models:
 - Root Mean Squared Scaled Error
 - Overall Weighted Average
 
+To test the repository tools we use the data available at the [M4 Forecasting Competition](https://www.researchgate.net/publication/325901666_The_M4_Competition_Results_findings_conclusion_and_way_forward).
+
 ## REFERENCES
 1. [The M4 Competition: Results, findings, conclusion and way forward](https://www.researchgate.net/publication/325901666_The_M4_Competition_Results_findings_conclusion_and_way_forward)
 2. [M5-Competitors-Guide_Final-1](https://mk0mcompetitiont8ake.kinstacdn.com/wp-content/uploads/2020/02/M5-Competitors-Guide_Final-1.pdf)
