@@ -6,6 +6,19 @@ plt.style.use('ggplot')
 
 import seaborn as sns
 
+def plot_prediction(y, y_hat):
+  """
+  y: pandas df
+    panel with columns unique_id, ds, y
+  y_hat: pandas df
+    panel with columns unique_id, ds, y_hat
+  """
+  pd.plotting.register_matplotlib_converters()
+
+  plt.plot(y.ds, y.y, label = 'y')
+  plt.plot(y_hat.ds, y_hat.y_hat, label='y_hat')
+  plt.legend(loc='upper left')
+  plt.show()
 
 def plot_distributions(distributions_dict, fig_title=None, xlabel=None):
   n_distributions = len(distributions_dict.keys())
