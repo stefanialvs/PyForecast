@@ -29,6 +29,24 @@ def maybe_download(filename):
   return filepath
 
 def M4_parser(dataset_name, num_obs=1000000):
+  # download dataset
+  m4info_filename = maybe_download('M4-info.csv')
+  
+  dailytrain_filename = maybe_download('Train/Daily-train.csv')
+  hourlytrain_filename = maybe_download('Train/Hourly-train.csv')
+  monthlytrain_filename = maybe_download('Train/Monthly-train.csv')
+  quarterlytrain_filename = maybe_download('Train/Quarterly-train.csv')
+  weeklytrain_filename = maybe_download('Train/Weekly-train.csv')
+  yearlytrain_filename = maybe_download('Train/Yearly-train.csv')
+
+  dailytest_filename = maybe_download('Test/Daily-test.csv')
+  hourlytest_filename = maybe_download('Test/Hourly-test.csv')
+  monthlytest_filename = maybe_download('Test/Monthly-test.csv')
+  quarterlytest_filename = maybe_download('Test/Quarterly-test.csv')
+  weeklytest_filename = maybe_download('Test/Weekly-test.csv')
+  yearlytest_filename = maybe_download('Test/Yearly-test.csv')
+  print('\n')
+
   m4_info = pd.read_csv(DATA_DIRECTORY+'/M4-info.csv', usecols=['M4id','category'])
   m4_info = m4_info[m4_info['M4id'].str.startswith(dataset_name[0])].reset_index(drop=True)
   
@@ -71,85 +89,3 @@ def M4_parser(dataset_name, num_obs=1000000):
   y_test_df = dataset.filter(items=['unique_id', 'y', 'ds'])
 
   return X_train_df, y_train_df, X_test_df, y_test_df
-
-def naive2_predictions(dataset_name, num_obs):
-    # Read train and test data
-    _, y_train_df, _, y_test_df = M4_parser(dataset_name, num_obs)
-    
-    seas_dict = {'Hourly': {'seasonality': 24, 'input_size': 24,
-                           'output_size': 48},
-                 'Daily': {'seasonality': 7, 'input_size': 7,
-                           'output_size': 14},
-                 'Weekly': {'seasonality': 52, 'input_size': 52,
-                            'output_size': 13},
-                 'Monthly': {'seasonality': 12, 'input_size': 12,
-                             'output_size':24},
-                 'Quarterly': {'seasonality': 4, 'input_size': 4,
-                               'output_size': 8},
-                 'Yearly': {'seasonality': 1, 'input_size': 4,
-                            'output_size': 6}}
-    
-    seasonality = seas_dict[dataset_name]['seasonality']
-    input_size = seas_dict[dataset_name]['input_size']
-    output_size = seas_dict[dataset_name]['output_size']
-
-    print('Preparing {} dataset'.format(dataset_name))
-    print('Preparing Naive2 {} dataset predictions'.format(dataset_name))
-    
-    # Naive2
-    y_naive2_df = pd.DataFrame(columns=['unique_id', 'ds', 'y_hat'])
-    
-    # Sort X by unique_id for faster loop
-    y_train_df = y_train_df.sort_values(by=['unique_id', 'ds'])
-
-    # List of uniques ids
-    unique_ids = y_train_df['unique_id'].unique()
-
-    # Panel of fitted models
-    for unique_id in unique_ids:
-        # Fast filter X and y by id.
-        top_row = np.asscalar(y_train_df['unique_id'].searchsorted(unique_id, 'left'))
-        bottom_row = np.asscalar(y_train_df['unique_id'].searchsorted(unique_id, 'right'))
-        y_id = y_train_df[top_row:bottom_row]
-        
-        y_naive2 = pd.DataFrame(columns=['unique_id', 'ds', 'y_hat'])
-        y_naive2['ds'] = pd.date_range(start=y_id.ds.max(),
-                                       periods=output_size+1, freq='D')[1:]
-        y_naive2['unique_id'] = unique_id
-        y_naive2['y_hat'] = Naive2(seasonality).fit(y_id.y.to_numpy()).predict(output_size)
-        y_naive2_df = y_naive2_df.append(y_naive2)
-    
-    y_naive2_df = y_test_df.merge(y_naive2_df, on=['unique_id', 'ds'], how='left')
-    y_naive2_df.rename(columns={'y_hat': 'y_hat_naive2'}, inplace=True)
-    naive2_file = './results/{}-naive2predictions_{}.csv'.format(dataset_name, num_obs)
-    y_naive2_df.to_csv(naive2_file, encoding='utf-8', index=None)
-    return y_naive2_df
-
-def prepare_M4_data(dataset_name, num_obs):
-  m4info_filename = maybe_download('M4-info.csv')
-  
-  dailytrain_filename = maybe_download('Train/Daily-train.csv')
-  hourlytrain_filename = maybe_download('Train/Hourly-train.csv')
-  monthlytrain_filename = maybe_download('Train/Monthly-train.csv')
-  quarterlytrain_filename = maybe_download('Train/Quarterly-train.csv')
-  weeklytrain_filename = maybe_download('Train/Weekly-train.csv')
-  yearlytrain_filename = maybe_download('Train/Yearly-train.csv')
-
-  dailytest_filename = maybe_download('Test/Daily-test.csv')
-  hourlytest_filename = maybe_download('Test/Hourly-test.csv')
-  monthlytest_filename = maybe_download('Test/Monthly-test.csv')
-  quarterlytest_filename = maybe_download('Test/Quarterly-test.csv')
-  weeklytest_filename = maybe_download('Test/Weekly-test.csv')
-  yearlytest_filename = maybe_download('Test/Yearly-test.csv')
-  print('\n')
-
-  X_train_df, y_train_df, X_test_df, y_test_df = M4_parser(dataset_name, num_obs)
-
-  naive2_file = './results/{}-naive2predictions_{}.csv'.format(dataset_name, num_obs)
-  if not os.path.exists(naive2_file):
-    y_naive2_df = naive2_predictions(dataset_name, num_obs)
-
-  else:
-    y_naive2_df = pd.read_csv(naive2_file)
-
-  return X_train_df, y_train_df, X_test_df, y_naive2_df
