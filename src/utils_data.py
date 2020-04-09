@@ -4,7 +4,6 @@ from six.moves import urllib
 import numpy as np
 import pandas as pd
 
-from benchmarks import Naive2
 
 SOURCE_URL = 'https://raw.githubusercontent.com/Mcompetitions/M4-methods/master/Dataset/'
 DATA_DIRECTORY = "./data/m4"
