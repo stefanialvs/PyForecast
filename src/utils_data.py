@@ -52,7 +52,7 @@ def M4_parser(dataset_name, num_obs=1000000):
   
   # train data
   train_path='{}{}-train.csv'.format(TRAIN_DIRECTORY, dataset_name)
-  dataset = pd.read_csv(train_path).head(num_obs)
+  dataset = pd.read_csv(train_path, nrows=num_obs)
   dataset = dataset.rename(columns={'V1':'unique_id'})
 
   dataset = pd.wide_to_long(dataset, stubnames=["V"], i="unique_id", j="ds").reset_index()
@@ -70,7 +70,7 @@ def M4_parser(dataset_name, num_obs=1000000):
   
   # test data
   test_path='{}{}-test.csv'.format(TEST_DIRECTORY, dataset_name)
-  dataset = pd.read_csv(test_path).head(num_obs)
+  dataset = pd.read_csv(test_path, nrows=num_obs)
   dataset = dataset.rename(columns={'V1':'unique_id'})
 
   dataset = pd.wide_to_long(dataset, stubnames=["V"], i="unique_id", j="ds").reset_index()
