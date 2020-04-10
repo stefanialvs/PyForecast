@@ -156,11 +156,12 @@ class PanelModel:
     for full panel data. The panel dataframe is defined by the each series 
     unique_id and their datestamps.
     """
-    def __init__(self, model):
+    def __init__(self, model, fill_na=True):
         """
         model: sklearn BaseEstimator class
         """
         self.model = model
+        self.fill_na = fill_na
 
     def fit(self, X, y):
         """
@@ -173,10 +174,13 @@ class PanelModel:
         assert X.index.names == ['unique_id', 'ds']
         assert y.index.names == ['unique_id', 'ds']
         self.model_ = {}
+        self.mean_ = {}
         for uid, X_uid in X.groupby('unique_id'): 
             y_uid = y.loc[uid]
             self.model_[uid] = clone(self.model)
             self.model_[uid].fit(X_uid.values, y_uid.values)
+            if self.fill_na:
+                self.mean_[uid] = np.nanmean(y_uid.values)
         return self
 
     def predict(self, X):
@@ -187,11 +191,14 @@ class PanelModel:
         idxs, preds = [], []
         for uid, X_uid in X.groupby('unique_id'):
             y_hat_uid = self.model_[uid].predict(X_uid.values)
+            if self.fill_na:
+                y_hat_uid[np.isnan(y_hat_uid)] = self.mean_[uid]
+            assert len(y_hat_uid)==len(X_uid), "Predictions length mismatch"
             idxs.extend(X_uid.index)
             preds.extend(y_hat_uid)
         idx = pd.MultiIndex.from_tuples(idxs, names=('unique_id', 'ds'))
         preds = pd.Series(preds, index=idx)
-        return preds 
+        return preds
 
 
 ######################################################################
@@ -328,6 +335,7 @@ class Naive2(BaseEstimator, RegressorMixin):
         r_hat = self.n_model.fit(X, self.ts_des).predict(X)
         y_hat = s_hat * r_hat
         return y_hat
+
 
 class RandomWalkDrift(BaseEstimator, RegressorMixin):
     """
