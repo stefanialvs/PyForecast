@@ -372,6 +372,31 @@ class RandomWalkDrift(BaseEstimator, RegressorMixin):
         y_hat = naive + drift
         return y_hat
 
+
+class SeasonalMovingAverage(BaseEstimator, RegressorMixin):
+    """
+    SeasonalMovingAverage:
+    """
+    def __init__(self, h, seasonality, n_seasons):
+        self.h = h
+        self.seasonality = seasonality
+        self.n_seasons = n_seasons
+
+    def fit(self, X, y):
+        n_obs = self.seasonality * self.n_seasons
+        y_vals = y[-n_obs:]
+        self.season_vals_ = np.empty(self.seasonality)
+        for i in range(self.seasonality):
+            sl = slice(i, n_obs, self.seasonality)
+            self.season_vals_[i] = np.mean(y_vals[sl])
+        return self
+
+    def predict(self, X):
+        idxs = [i % self.seasonality for i in range(self.h)]
+        preds = self.season_vals_[idxs]
+        return preds
+
+
 ######################################################################
 # SPARSE BENCHMARK MODELS
 ######################################################################
