@@ -371,3 +371,45 @@ class RandomWalkDrift(BaseEstimator, RegressorMixin):
         drift = self.drift * np.array(range(1,self.h+1))
         y_hat = naive + drift
         return y_hat
+
+######################################################################
+# SPARSE BENCHMARK MODELS
+######################################################################
+
+class Croston(BaseEstimator, RegressorMixin):
+
+    def __init__(self, kind='classic'):
+        allowed_kinds = ('classic', 'optimized', 'sba')
+        if kind not in allowed_kinds:
+            raise ValueError(f'kind must be one of {allowed_kinds}')
+        self.kind = kind
+        if kind in ('classic', 'optimized'):
+            self.mult = 1
+        else:
+            self.mult = 0.95
+        if kind in ('classic', 'sba'):
+            self.a1 = self.a2 = 0.1
+
+    def _optimize(self, y):
+        res = minimize(fun=ses, x0=0, args=(y, 1, 'train'), 
+                       bounds=[(0.1, 0.3)],
+                       method='L-BFGS-B').x[0]
+        return res
+
+    def fit(self, X, y):
+        yd = demand(y)
+        yi = intervals(y)
+
+        if self.kind == 'optimized':
+            self.a1 = self._optimize(yd) 
+            self.a2 = self._optimize(yi) 
+
+        ydp = ses(self.a1, yd, h=1, job='forecast')['mean']
+        yip = ses(self.a2, yi, h=1, job='forecast')['mean']
+        self.pred_ = ydp / yip * self.mult
+        return self
+
+    def predict(self, X):
+        h = X.shape[0]
+        preds = np.repeat(self.pred_, h)
+        return preds 
