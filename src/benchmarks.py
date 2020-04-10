@@ -7,6 +7,7 @@ from math import sqrt
 
 from scipy.optimize import minimize
 from sklearn.base import BaseEstimator, RegressorMixin, clone
+from scipy.optimize import minimize
 
 
 ######################################################################
@@ -372,6 +373,7 @@ class RandomWalkDrift(BaseEstimator, RegressorMixin):
         y_hat = naive + drift
         return y_hat
 
+
 class MovingAverage(BaseEstimator, RegressorMixin):
     """
     MovingAverage:
@@ -417,6 +419,38 @@ class SeasonalMovingAverage(BaseEstimator, RegressorMixin):
 ######################################################################
 # SPARSE BENCHMARK MODELS
 ######################################################################
+
+def ses(a, x, h, job):
+    y = np.empty(x.size + 1)
+    y[0] = x[0]
+    
+    for i, val in enumerate(x):
+        y[i+1] = a * val + (1 - a) * y[i]
+
+    fitted = y[:-1]
+    forecast = np.repeat(y[-1], h)
+    if job == 'train':
+        return np.mean((fitted - x)**2)
+    if job == 'fit':
+        return fitted
+    return {'fitted': fitted, 'mean': forecast}
+    
+def demand(x):
+    return x[x > 0]
+
+def intervals(x):
+    y = []
+
+    ctr = 1
+    for i, val in enumerate(x):
+        if val == 0:
+            ctr += 1
+        else:
+            y.append(ctr)
+            ctr = 1
+
+    y = np.array(y)
+    return y
 
 class Croston(BaseEstimator, RegressorMixin):
 
