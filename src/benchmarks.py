@@ -328,3 +328,38 @@ class Naive2(BaseEstimator, RegressorMixin):
         r_hat = self.n_model.fit(X, self.ts_des).predict(X)
         y_hat = s_hat * r_hat
         return y_hat
+
+class RandomWalkDrift(BaseEstimator, RegressorMixin):
+    """
+    RandomWalkDrift: Random Walk with drift.
+    """
+    def __init__(self, h):
+        """
+        h: int
+            forecast horizon
+        """
+        self.h = h
+  
+    def fit(self, X, y):
+        """
+        X: numpy array
+            time series covariates (for pipeline compatibility)
+        y: numpy array
+            train values of the time series
+        """
+        self.drift = (float(y[-1]) - float(y[0]))/(len(y)-1)
+        self.naive = [float(y[-1])]
+        return self
+
+    def predict(self, h):
+        """
+        X: numpy array
+            time series covariates (for pipeline compatibility)
+        return
+        y_hat: numpy array
+            forecast for time horizon 'h'.
+        """
+        naive = np.array(self.naive * self.h)
+        drift = self.drift * np.array(range(1,self.h+1))
+        y_hat = naive + drift
+        return y_hat
