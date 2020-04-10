@@ -372,6 +372,23 @@ class RandomWalkDrift(BaseEstimator, RegressorMixin):
         y_hat = naive + drift
         return y_hat
 
+class MovingAverage(BaseEstimator, RegressorMixin):
+    """
+    MovingAverage:
+    """
+    def __init__(self, h, n_obs):
+        self.h = h
+        self.n_obs = n_obs
+
+    def fit(self, X, y):
+        y_vals = y[-self.n_obs:]
+        self.moving_average_ = np.mean(y_vals)
+        return self
+
+    def predict(self, X):
+        preds = np.tile(self.moving_average_, self.h)
+        return preds
+
 
 class SeasonalMovingAverage(BaseEstimator, RegressorMixin):
     """
