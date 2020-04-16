@@ -174,14 +174,20 @@ class PanelModel:
         """
         assert X.index.names == ['unique_id', 'ds']
         assert y.index.names == ['unique_id', 'ds']
+        uids = y.index.get_level_values('unique_id').unique()
+        X_uids = X.index.get_level_values('unique_id').unique()
+        assert all(uids == X_uids), "not same u_ids"
+
         self.model_ = {}
         self.mean_ = {}
-        for uid, X_uid in X.groupby('unique_id'): 
-            y_uid = y.loc[uid]
+        
+        for uid in uids:
+            X_uid = X.loc[uid].values
+            y_uid = y.loc[uid].values
             self.model_[uid] = clone(self.model)
-            self.model_[uid].fit(X_uid.values, y_uid.values)
+            self.model_[uid].fit(X_uid, y_uid)
             if self.fill_na:
-                self.mean_[uid] = np.nanmean(y_uid.values)
+                self.mean_[uid] = np.nanmean(y_uid)
         return self
 
     def predict(self, X):
@@ -189,6 +195,8 @@ class PanelModel:
         X: pandas dataframe
             dataframe with panel data covariates defined by 'unique_id' and 'ds'
         """
+        assert X.index.names == ['unique_id', 'ds']
+        
         idxs, preds = [], []
         for uid, X_uid in X.groupby('unique_id'):
             y_hat_uid = self.model_[uid].predict(X_uid.values)
@@ -197,10 +205,10 @@ class PanelModel:
             assert len(y_hat_uid)==len(X_uid), "Predictions length mismatch"
             idxs.extend(X_uid.index)
             preds.extend(y_hat_uid)
-        idx = pd.MultiIndex.from_tuples(idxs, names=('unique_id', 'ds'))
-        preds = pd.Series(preds, index=idx)
+        
+        idxs = pd.MultiIndex.from_tuples(idxs, names=('unique_id', 'ds'))
+        preds = pd.Series(preds, index=idxs)
         return preds
-
 
 ######################################################################
 # CONTINUOUS BENCHMARK MODELS

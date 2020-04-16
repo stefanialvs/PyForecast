@@ -18,9 +18,7 @@ def mse(y, y_hat):
       predicted values
     return: MSE
     """
-    y = np.reshape(y, (-1,))
-    y_hat = np.reshape(y_hat, (-1,))
-    mse = np.mean(np.square(y - y_hat)).item()
+    mse = np.mean(np.square(y - y_hat))
     return mse
 
 def mape(y, y_hat):
@@ -32,9 +30,8 @@ def mape(y, y_hat):
       predicted values
     return: MAPE
     """
-    y = np.reshape(y, (-1,))
-    y_hat = np.reshape(y_hat, (-1,))
     mape = np.mean(np.abs(y - y_hat) / np.abs(y))
+    mape = 100 * mape
     return mape
 
 def smape(y, y_hat):
@@ -46,14 +43,14 @@ def smape(y, y_hat):
       predicted values
     return: sMAPE
     """
-    y = np.reshape(y, (-1,))
-    y_hat = np.reshape(y_hat, (-1,))
-    smape = np.mean(200.0 * np.abs(y - y_hat) / (np.abs(y) + np.abs(y_hat)))
+    smape = np.mean(np.abs(y - y_hat) / (np.abs(y) + np.abs(y_hat)))
+    smape = 200 * smape
     return smape
 
-def mase(y, y_hat, y_train, seasonality):
+def mase(y, y_hat, y_train, seasonality=1):
     """
-    Calculates Mean Absolute Scaled Error.
+    Calculates the M4 Mean Absolute Scaled Error.
+    The scale is the mean absolute error of the seasonal naive model.
     y: numpy array
       actual test values
     y_hat: numpy array
@@ -62,68 +59,73 @@ def mase(y, y_hat, y_train, seasonality):
       actual train values for Naive1 predictions
     seasonality: int
       main frequency of the time series
-      Quarterly 4, Daily 7, Monthly 12
+      Hourly 24,  Daily 7, Weekly 52,
+      Monthly 12, Quarterly 4, Yearly 1
     return: MASE
     """
-    y_hat_naive = []
-    for i in range(seasonality, len(y_train)):
-        y_hat_naive.append(y_train[(i - seasonality)])
-
-    masep = np.mean(abs(y_train[seasonality:] - y_hat_naive))
-    mase = np.mean(abs(y - y_hat)) / masep
+    scale = np.mean(abs(y_train[seasonality:] - y_train[:-seasonality]))
+    mase = np.mean(abs(y - y_hat)) / scale
+    mase = 100 * mase
     return mase
 
 
-def rmsse(y, y_hat, denom):
+def rmsse(y, y_hat, y_train, seasonality=1):
     """
-    Calculates the Root Mean Squared Scaled Error.
+    Calculates the M5 Root Mean Squared Scaled Error.
+    The scale is the mean absolute error of the seasonal naive model.
     y: numpy array
       actual test values
     y_hat: numpy array of len h (forecasting horizon)
       predicted values
-    h: forecasting horizon
+    seasonality: int
+      main frequency of the time series
+      Hourly 24,  Daily 7, Weekly 52,
+      Monthly 12, Quarterly 4, Yearly 1
     return: RMSSE
     """
-    num = mse(y, y_hat)
-    res = sqrt(num / denom)
-    return res
+    scale = np.mean(np.square(y_train[seasonality:] - y_train[:-seasonality]))
+    rmsse = sqrt(mse(y, y_hat) / scale)
+    rmsse = 100 * rmsse
+    return rmsse
 
-def evaluate_panel(y_panel, y_hat_panel, metric,
-                   y_insample=None, seasonality=None):
+def evaluate_panel(y_test, y_hat, y_train, 
+                   metric, seasonality):
     """
-    Calculates metric for y_panel and y_hat_panel
-    y_panel: pandas df
-    panel with columns unique_id, ds, y
-    y_naive2_panel: pandas df
-    panel with columns unique_id, ds, y_hat
-    y_insample: pandas df
-    panel with columns unique_id, ds, y (train)
-    this is used in the MASE
+    Calculates metric for y and y_hat
+    y_test: pandas df
+      df with columns unique_id, ds, y
+    y_hat: pandas df
+      df with columns unique_id, ds, y_hat
+    y_train: pandas df
+      df with columns unique_id, ds, y (train)
+      this is used in the scaled metrics
     seasonality: int
-    main frequency of the time series
-    Quarterly 4, Daily 7, Monthly 12
+      main frequency of the time series
+      Hourly 24,  Daily 7, Weekly 52,
+      Monthly 12, Quarterly 4, Yearly 1
     return: list of metric evaluations
     """
     metric_name = metric.__code__.co_name
-    assert len(y_panel)==len(y_hat_panel)
-    uids = y_panel.index.get_level_values('unique_id').unique()
-    y_hat_uids = y_hat_panel.index.get_level_values('unique_id').unique()
+    uids = y_test.index.get_level_values('unique_id').unique()
+    y_hat_uids = y_hat.index.get_level_values('unique_id').unique()
+    assert len(y_test)==len(y_hat), "not same length"
     assert all(uids == y_hat_uids), "not same u_ids"
 
-    evaluation = []
-    for uid in uids: 
-        y_uid = y_panel.loc[uid].values
-        y_hat_uid = y_hat_panel.loc[uid].values
+    idxs, evaluations = [], []
+    for uid in uids:
+        y_test_uid = y_test.loc[uid].values
+        y_hat_uid = y_hat.loc[uid].values
+        y_train_uid = y_train.loc[uid].y.values
 
-        if metric_name == 'mase':
-            assert (y_insample is not None) and (seasonality is not None)
-            y_insample_uid = y_insample_panel.loc[uid].values
-            evaluation_uid = metric(y_uid, y_hat_uid, y_insample_uid, seasonality)
+        if metric_name in ['mase', 'rmsse']:
+            evaluation_uid = metric(y=y_test_uid, y_hat=y_hat_uid, 
+                                    y_train=y_train_uid, seasonality=seasonality)
         else:
-            print("len(y_uid)", len(y_uid))
-            print("len(y_hat_uid)", len(y_hat_uid))
-            print("y_uid", y_uid)
-            print("y_hat_uid", y_hat_uid)
-            evaluation_uid = metric(y_uid, y_hat_uid)
-    evaluation.append(evaluation_uid)
-    return evaluation
+            evaluation_uid = metric(y=y_test_uid, y_hat=y_hat_uid)
+
+        idxs.append(uid)
+        evaluations.append(evaluation_uid)
+    
+    idxs = pd.Index(idxs, name='unique_id')
+    evaluations = pd.Series(evaluations, index=idxs)
+    return evaluations
