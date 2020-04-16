@@ -49,7 +49,7 @@ def smape(y, y_hat):
     y = np.reshape(y, (-1,))
     y_hat = np.reshape(y_hat, (-1,))
     smape = np.mean(200.0 * np.abs(y - y_hat) / (np.abs(y) + np.abs(y_hat)))
-    return smapes
+    return smape
 
 def mase(y, y_hat, y_train, seasonality):
     """
