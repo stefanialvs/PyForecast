@@ -299,8 +299,10 @@ class SeasonalNaive(BaseEstimator, RegressorMixin):
 class Naive2(BaseEstimator, RegressorMixin):
     """
     Naive2 model.
-    This benchmark model produces a forecast that is equal to
-    the last observed value for a given time series.
+    Popular benchmark model for time series forecasting that automatically adapts
+    to the potential seasonality of a series based on an autocorrelation test.
+    If the series is seasonal the model composes the predictions of Naive and SeasonalNaive,
+    else the model predicts on the simple Naive.
     """
     def __init__(self, h, seasonality):
         """
