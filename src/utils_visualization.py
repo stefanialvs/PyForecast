@@ -67,7 +67,7 @@ def plot_grid_series(y, uids, models):
         plot_single_serie(uid_df, title=uid, ax=axs[row, col], models=models)
     
     fig.tight_layout()
-    plt.show()
+    #plt.show()
     plot_file = "./results/grid_series.png"
     plt.savefig(plot_file, bbox_inches = "tight", dpi=300)
     plt.close()
