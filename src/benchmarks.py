@@ -351,6 +351,9 @@ class Naive2(BaseEstimator, RegressorMixin):
 class RandomWalkDrift(BaseEstimator, RegressorMixin):
     """
     RandomWalkDrift: Random Walk with drift.
+    Benchmark model suited for time series that break the assumption 
+    of stationarity, by including a global linear trend.
+    The predictions are given by the last observation 'drifted' by the trend.
     """
     def __init__(self, h):
         """
@@ -387,6 +390,10 @@ class RandomWalkDrift(BaseEstimator, RegressorMixin):
 class MovingAverage(BaseEstimator, RegressorMixin):
     """
     MovingAverage:
+    Benchmark model suited for stationary time series.
+    The moving or rolling average, acts as a convolution that filters,
+    high frequency components of a signal, by smoothing it.
+    The prediction is based on the average of the last n_window observations.
     """
     def __init__(self, h, n_obs):
         self.h = h
@@ -405,6 +412,10 @@ class MovingAverage(BaseEstimator, RegressorMixin):
 class SeasonalMovingAverage(BaseEstimator, RegressorMixin):
     """
     SeasonalMovingAverage:
+    Benchmark model suited for stationary time series.
+    The seasonal moving or rolling average, applies an independent Moving Average
+    for each season of the time series. The prediction is based on the average of 
+    the last n_window observations for each season.
     """
     def __init__(self, h, seasonality, n_seasons):
         self.h = h
