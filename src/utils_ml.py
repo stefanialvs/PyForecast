@@ -28,7 +28,7 @@ def button_models_metrics_filter(dataset_name, models_filter, metrics_filter):
               'SeasonalMovingAverage': SeasonalMovingAverage(h=h, n_seasons=2,
                                                              seasonality=seasonality)}
     
-    metrics = {'MSE': mse, 'MAPE': mape, 'SMAPE': smape, 
+    metrics = {'RMSE': rmse, 'MAPE': mape, 'SMAPE': smape, 
                'MASE': mase, 'RMSSE': rmsse}
     
     # Filtered models and metrics

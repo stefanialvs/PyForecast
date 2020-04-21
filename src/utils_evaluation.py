@@ -11,21 +11,32 @@ from sklearn.decomposition import PCA
 # METRICS
 ######################################################################
 
-def mse(y, y_hat):
+def rmse(y, y_hat):
     """
-    Calculates Mean Squared Error.
+    Calculates Root Mean Squared Error.
+    RMSE measures the prediction accuracy of a 
+    forecasting method by calculating the squared deviation 
+    of the prediction and the true value at a given time and 
+    averages these devations over the length of the series.
+    Finally the RMSE will be in the same scale 
+    as the original time series so its comparison with other
+    series is possible only if they share a common scale.
     y: numpy array
       actual test values
     y_hat: numpy array
       predicted values
-    return: MSE
+    return: RMSE
     """
-    mse = np.mean(np.square(y - y_hat))
-    return mse
+    rmse = sqrt(np.mean(np.square(y - y_hat)))
+    return rmse
 
 def mape(y, y_hat):
     """
     Calculates Mean Absolute Percentage Error.
+    MAPE measures the relative prediction accuracy of a 
+    forecasting method by calculating the percentual deviation 
+    of the prediction and the true value at a given time and 
+    averages these devations over the length of the series.
     y: numpy array
       actual test values
     y_hat: numpy array
@@ -39,11 +50,19 @@ def mape(y, y_hat):
 def smape(y, y_hat):
     """
     Calculates Symmetric Mean Absolute Percentage Error.
+    SMAPE measures the relative prediction accuracy of a 
+    forecasting method by calculating the relative deviation 
+    of the prediction and the true value scaled by the sum of the
+    absolute values for the prediction and true value at a 
+    given time, then averages these devations over the length 
+    of the series. This allows the SMAPE to have bounds between
+    0% and 200% which is desireble compared to normal MAPE that
+    may be undetermined.
     y: numpy array
       actual test values
     y_hat: numpy array
       predicted values
-    return: sMAPE
+    return: SMAPE
     """
     smape = np.mean(np.abs(y - y_hat) / (np.abs(y) + np.abs(y_hat)))
     smape = 200 * smape
@@ -52,7 +71,10 @@ def smape(y, y_hat):
 def mase(y, y_hat, y_train, seasonality=1):
     """
     Calculates the M4 Mean Absolute Scaled Error.
-    The scale is the mean absolute error of the seasonal naive model.
+    MASE measures the relative prediction accuracy of a 
+    forecasting method by comparinng the mean absolute errors 
+    of the prediction and the true value against the mean
+    absolute errors of the seasonal naive model.
     y: numpy array
       actual test values
     y_hat: numpy array
@@ -74,7 +96,11 @@ def mase(y, y_hat, y_train, seasonality=1):
 def rmsse(y, y_hat, y_train, seasonality=1):
     """
     Calculates the M5 Root Mean Squared Scaled Error.
-    The scale is the mean absolute error of the seasonal naive model.
+    Calculates the M4 Mean Absolute Scaled Error.
+    MASE measures the relative prediction accuracy of a 
+    forecasting method by comparinng the mean squared errors 
+    of the prediction and the true value against the mean
+    squared errors of the seasonal naive model.
     y: numpy array
       actual test values
     y_hat: numpy array of len h (forecasting horizon)
@@ -93,7 +119,7 @@ def rmsse(y, y_hat, y_train, seasonality=1):
 def evaluate_panel(y_test, y_hat, y_train, 
                    metric, seasonality):
     """
-    Calculates metric for y and y_hat
+    Calculates a specific metric for y and y_hat
     y_test: pandas df
       df with columns unique_id, ds, y
     y_hat: pandas df
@@ -105,7 +131,8 @@ def evaluate_panel(y_test, y_hat, y_train,
       main frequency of the time series
       Hourly 24,  Daily 7, Weekly 52,
       Monthly 12, Quarterly 4, Yearly 1
-    return: list of metric evaluations
+    return: list of metric evaluations for each unique_id
+      in the panel data
     """
     metric_name = metric.__code__.co_name
     uids = y_test.index.get_level_values('unique_id').unique()
@@ -134,8 +161,8 @@ def evaluate_panel(y_test, y_hat, y_train,
 
 def compute_evaluations(y_test, y_hat, y_train, metrics, seasonality):
     """
-    Calculates all metrics for y and y_hat panel data,
-    And creates rank based on PCA dimensionality reduction.
+    Calculates all metrics in list for y and y_hat panel data,
+    and creates rank based on PCA dimensionality reduction.
     y_test: pandas df
       df with columns unique_id, ds, y
     y_hat: pandas df

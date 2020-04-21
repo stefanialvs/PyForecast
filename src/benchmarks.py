@@ -474,7 +474,18 @@ def intervals(x):
     return y
 
 class Croston(BaseEstimator, RegressorMixin):
-
+    """
+    Croston:
+    Benchmark model suited for sparse time series (intermittent).
+    The Croston method decomposes the forecast in the prediction 
+    of the time series being different than zero, and conditional 
+    on the time series being different than zero the prediction
+    of its value.
+    The method works as an exponential smoothing that only updates
+    when the values of the time series are bigger than zero.
+    The predictions are then a scaled exponential smoothing by the
+    size of the interval of zeros.
+    """
     def __init__(self, kind='classic'):
         allowed_kinds = ('classic', 'optimized', 'sba')
         if kind not in allowed_kinds:
