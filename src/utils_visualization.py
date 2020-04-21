@@ -68,9 +68,8 @@ def plot_grid_series(y, uids, models):
     
     fig.tight_layout()
     #plt.show()
-    fig.figure(figsize=3.3,1.1)
     plot_file = "./results/grid_series.png"
-    plt.savefig(plot_file, bbox_inches = "tight", dpi=100)
+    plt.savefig(plot_file, bbox_inches = "tight", dpi=52)
     plt.close()
 
 ######################################################################
