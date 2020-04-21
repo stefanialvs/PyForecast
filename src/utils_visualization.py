@@ -76,14 +76,16 @@ def plot_grid_series(y, uids, models):
     
     legends = tuple(lines.keys())
     plots = tuple(lines.values())
-    fig.legend(handles=plots, labels=legends, frameon=False,
-               loc='upper left', ncol=1, bbox_to_anchor= (0.99, 0.65)) # lower center
+    lg = fig.legend(handles=plots, labels=legends, frameon=False, fontsize='large',
+                    loc='lower center', ncol=len(legends), bbox_to_anchor= (0.5, -0.02))
 
     fig.tight_layout()
-    
+
     #plt.show()
     plot_file = "./results/grid_series.png"
-    plt.savefig(plot_file, bbox_inches = "tight", dpi=52)
+    plt.savefig(plot_file,
+                bbox_extra_artists=[lg],
+                bbox_inches = "tight", dpi=52)
     plt.close()
 
 ######################################################################
