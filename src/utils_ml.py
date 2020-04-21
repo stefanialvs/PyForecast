@@ -96,4 +96,4 @@ def ml_pipeline(dataset_name, num_obs, models_filter, metrics_filter):
     # Pipeline results
     uids_sample = button_uids_filter(y_df, size=8)
     plot_grid_series(y_df, uids_sample, models)
-    metrics.to_csv('./results/metrics.csv')
+    evaluations.to_csv('./results/metrics.csv')
