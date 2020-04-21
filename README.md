@@ -16,7 +16,6 @@ The repository contains the following set of benchmark models:
 - Symmetric Mean Absolute Percentage Error
 - Mean Absolute Scaled Error
 - Root Mean Squared Scaled Error
-- Overall Weighted Average
 
 To test the repository tools we use the data available at the [M4 Forecasting Competition](https://www.researchgate.net/publication/325901666_The_M4_Competition_Results_findings_conclusion_and_way_forward).
 
