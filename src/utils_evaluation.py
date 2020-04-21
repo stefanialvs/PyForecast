@@ -11,6 +11,22 @@ from sklearn.decomposition import PCA
 # METRICS
 ######################################################################
 
+def mse(y, y_hat):
+    """
+    Calculates Mean Squared Error.
+    MSE measures the prediction accuracy of a 
+    forecasting method by calculating the squared deviation 
+    of the prediction and the true value at a given time and 
+    averages these devations over the length of the series.
+    y: numpy array
+      actual test values
+    y_hat: numpy array
+      predicted values
+    return: MSE
+    """
+    mse = np.mean(np.square(y - y_hat))
+    return mse
+
 def rmse(y, y_hat):
     """
     Calculates Root Mean Squared Error.
