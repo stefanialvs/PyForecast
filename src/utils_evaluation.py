@@ -225,4 +225,6 @@ def compute_evaluations(y_test, y_hat, y_train, metrics, seasonality):
     evaluations['pca_rank'] = evaluations['pca_rank'].astype(int)
     
     evaluations.sort_values(by='pca_rank', inplace=True)
+    evaluations.reset_index(inplace=True)
+    evaluations.rename(columns={'index': 'model'}, inplace=True)
     return evaluations
