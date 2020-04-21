@@ -11,7 +11,9 @@ register_matplotlib_converters()
 ######################################################################
 
 # https://python-graph-gallery.com/100-calling-a-color-with-seaborn/
-model_colors = {'Naive': '#51DBE6',
+model_colors = {'train': 'blue',
+                'test': 'red',
+                'Naive': '#51DBE6',
                 'SeasonalNaive': '#FA6F94',
                 'Naive2': 'green',
                 'RandomWalkDrift': 'maroon',
@@ -30,14 +32,22 @@ def plot_single_serie(uid_df, title, ax, models, plt_h=60):
     uid_df.reset_index(inplace=True)
     
     # plot last 60 observations of actual date
-    sns.lineplot(x='ds', y='y',
-                 hue='split', data=uid_df[-plt_h:], ax=ax)
+    uid_filter_df = uid_df[-plt_h:]
+
+    train_df = uid_filter_df.loc[uid_filter_df.split=='train']
+    test_df = uid_filter_df.loc[uid_filter_df.split=='test']
+
+    train_line = ax.plot(train_df['ds'], train_df['y'],
+                         color=model_colors['train'])[0]
+
+    test_line = ax.plot(test_df['ds'], test_df['y'],
+                        color=model_colors['test'])[0]                         
     
     # plot fitted models
+    lines = {'train': train_line, 'test': test_line}
     for model_name in models.keys():
-        sns.lineplot(x='ds', y=model_name,
-                     color=model_colors[model_name], data=uid_df[-plt_h:],
-                     ax=ax, label=model_name)
+        lines[model_name] = ax.plot(uid_filter_df['ds'], uid_filter_df[model_name],
+                                    color=model_colors[model_name])[0]
     
     # rotate x axis
     ax.tick_params(axis='x', rotation=45)
@@ -46,9 +56,7 @@ def plot_single_serie(uid_df, title, ax, models, plt_h=60):
     ax.set_ylabel('Value')
     ax.set_title(title)
     
-    # remove legend title
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles=handles[1:], labels=labels[1:])
+    return lines
 
 def plot_grid_series(y, uids, models):
     assert len(uids)==8
@@ -64,9 +72,15 @@ def plot_grid_series(y, uids, models):
         row = int(np.round(i/8 + 0.001))
         col = i % 4
         
-        plot_single_serie(uid_df, title=uid, ax=axs[row, col], models=models)
+        lines = plot_single_serie(uid_df, title=uid, ax=axs[row, col], models=models)
     
+    legends = tuple(lines.keys())
+    plots = tuple(lines.values())
+    fig.legend(handles=plots, labels=legends, frameon=False,
+               loc='upper left', ncol=1, bbox_to_anchor= (0.99, 0.65)) # lower center
+
     fig.tight_layout()
+    
     #plt.show()
     plot_file = "./results/grid_series.png"
     plt.savefig(plot_file, bbox_inches = "tight", dpi=52)
