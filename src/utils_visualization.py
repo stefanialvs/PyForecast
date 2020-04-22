@@ -11,14 +11,14 @@ register_matplotlib_converters()
 ######################################################################
 
 # https://python-graph-gallery.com/100-calling-a-color-with-seaborn/
-model_colors = {'train': 'blue',
-                'test': 'red',
-                'Naive': '#51DBE6',
-                'SeasonalNaive': '#FA6F94',
-                'Naive2': 'green',
-                'RandomWalkDrift': 'maroon',
-                'Croston': 'black',
-                'MovingAverage': 'purple',
+model_colors = {'train': '#003f5c',
+                'test': '#ffa600',
+                'Naive': '#2f4b7c',
+                'SeasonalNaive': '#665191',
+                'Naive2': '#a05195',
+                'RandomWalkDrift': '#d45087',
+                'Croston': '#f95d6a',
+                'MovingAverage': '#ff7c43',
                 'SeasonalMovingAverage': 'blue'}
 
 def plot_single_serie(uid_df, title, ax, models, plt_h=60):
