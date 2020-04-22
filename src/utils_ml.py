@@ -46,7 +46,7 @@ def button_uids_filter(y_df, size=8):
 # MACHINE LEARNING PIPELINE
 ######################################################################
 
-def ml_pipeline(dataset_name, num_obs, models_filter, metrics_filter):
+def ml_pipeline(dataset_name, num_obs, models_filter, metrics_filter, h):
     # Set random seeds
     np.random.seed(1)
 
@@ -55,12 +55,13 @@ def ml_pipeline(dataset_name, num_obs, models_filter, metrics_filter):
 
 
     # Parse arguments
-    h = seas_dict[dataset_name]['output_size']
+    # h = seas_dict[dataset_name]['output_size']
     seasonality = seas_dict[dataset_name]['seasonality']
     
     # Read data
     directory = './data/'
-    X_train_df, y_train_df, X_test_df, y_test_df = m4_parser(dataset_name, directory, num_obs)
+    #X_train_df, y_train_df, X_test_df, y_test_df = m4_parser(dataset_name, directory, num_obs)
+    X_train_df, y_train_df, X_test_df, y_test_df = prepare_m4_data(dataset_name, directory, num_obs, h)
 
     # Pre sort dataframes for efficiency
     X_train_df = X_train_df.set_index(['unique_id', 'ds']).sort_index()

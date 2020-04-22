@@ -25,94 +25,129 @@ TEST_DIRECTORY = DATA_DIRECTORY + "/Test/"
 
 
 def maybe_download(filename):
-  """Download the data from M4's website, unless it's already here."""
-  if not os.path.exists(DATA_DIRECTORY):
-    os.mkdir(DATA_DIRECTORY)
-  if not os.path.exists(TRAIN_DIRECTORY):
-    os.mkdir(TRAIN_DIRECTORY)
-  if not os.path.exists(TEST_DIRECTORY):
-    os.mkdir(TEST_DIRECTORY)
+    """Download the data from M4's website, unless it's already here."""
+    if not os.path.exists(DATA_DIRECTORY):
+        os.mkdir(DATA_DIRECTORY)
+    if not os.path.exists(TRAIN_DIRECTORY):
+        os.mkdir(TRAIN_DIRECTORY)
+    if not os.path.exists(TEST_DIRECTORY):
+        os.mkdir(TEST_DIRECTORY)
   
-  filepath = os.path.join(DATA_DIRECTORY, filename)
-  if not os.path.exists(filepath):
-    filepath, _ = urllib.request.urlretrieve(SOURCE_URL + filename, filepath)
-    size = os.path.getsize(filepath)
-    print('Successfully downloaded', filename, size, 'bytes.')
-  return filepath
+    filepath = os.path.join(DATA_DIRECTORY, filename)
+    if not os.path.exists(filepath):
+        filepath, _ = urllib.request.urlretrieve(SOURCE_URL + filename, filepath)
+        size = os.path.getsize(filepath)
+        print('Successfully downloaded', filename, size, 'bytes.')
+    return filepath
 
 def m4_parser(dataset_name, directory, num_obs=1000000):
-  """
-  Transform M4 data into a panel.
-  Parameters
-  ----------
-  dataset_name: str
-    Frequency of the data. Example: 'Yearly'.
-  directory: str
-    Custom directory where data will be saved.
-  num_obs: int
-    Number of time series to return.
-  """
-  data_directory = directory + "/m4"
-  train_directory = data_directory + "/Train/"
-  test_directory = data_directory + "/Test/"
-  freq = seas_dict[dataset_name]['freq']
+    """
+    Transform M4 data into a panel.
+    Parameters
+    ----------
+    dataset_name: str
+      Frequency of the data. Example: 'Yearly'.
+    directory: str
+      Custom directory where data will be saved.
+    num_obs: int
+      Number of time series to return.
+    """
+    data_directory = directory + "/m4"
+    train_directory = data_directory + "/Train/"
+    test_directory = data_directory + "/Test/"
+    freq = seas_dict[dataset_name]['freq']
 
-  m4_info = pd.read_csv(data_directory+'/M4-info.csv', usecols=['M4id','category'])
-  m4_info = m4_info[m4_info['M4id'].str.startswith(freq)].reset_index(drop=True)
+    m4_info = pd.read_csv(data_directory+'/M4-info.csv', usecols=['M4id','category'])
+    m4_info = m4_info[m4_info['M4id'].str.startswith(freq)].reset_index(drop=True)
 
-  # Train data
-  train_path='{}{}-train.csv'.format(train_directory, dataset_name)
+    # Train data
+    train_path='{}{}-train.csv'.format(train_directory, dataset_name)
 
-  train_df = pd.read_csv(train_path, nrows=num_obs)
-  train_df = train_df.rename(columns={'V1':'unique_id'})
+    train_df = pd.read_csv(train_path, nrows=num_obs)
+    train_df = train_df.rename(columns={'V1':'unique_id'})
 
-  train_df = pd.wide_to_long(train_df, stubnames=["V"], i="unique_id", j="ds").reset_index()
-  train_df = train_df.rename(columns={'V':'y'})
-  train_df = train_df.dropna()
-  train_df['split'] = 'train'
-  train_df['ds'] = train_df['ds']-1
-  # Get len of series per unique_id
-  len_series = train_df.groupby('unique_id').agg({'ds': 'max'}).reset_index()
-  len_series.columns = ['unique_id', 'len_serie']
+    train_df = pd.wide_to_long(train_df, stubnames=["V"], i="unique_id", j="ds").reset_index()
+    train_df = train_df.rename(columns={'V':'y'})
+    train_df = train_df.dropna()
+    #train_df['split'] = 'train'
+    train_df['ds'] = train_df['ds']-1
+    # Get len of series per unique_id
+    len_series = train_df.groupby('unique_id').agg({'ds': 'max'}).reset_index()
+    len_series.columns = ['unique_id', 'len_serie']
 
-  # Test data
-  test_path='{}{}-test.csv'.format(test_directory, dataset_name)
+    # Test data
+    test_path='{}{}-test.csv'.format(test_directory, dataset_name)
 
-  test_df = pd.read_csv(test_path, nrows=num_obs)
-  test_df = test_df.rename(columns={'V1':'unique_id'})
+    test_df = pd.read_csv(test_path, nrows=num_obs)
+    test_df = test_df.rename(columns={'V1':'unique_id'})
 
-  test_df = pd.wide_to_long(test_df, stubnames=["V"], i="unique_id", j="ds").reset_index()
-  test_df = test_df.rename(columns={'V':'y'})
-  test_df = test_df.dropna()
-  test_df['split'] = 'test'
-  test_df = test_df.merge(len_series, on='unique_id')
-  test_df['ds'] = test_df['ds'] + test_df['len_serie'] - 1
-  test_df = test_df[['unique_id','ds','y','split']]
+    test_df = pd.wide_to_long(test_df, stubnames=["V"], i="unique_id", j="ds").reset_index()
+    test_df = test_df.rename(columns={'V':'y'})
+    test_df = test_df.dropna()
+    #test_df['split'] = 'test'
+    test_df = test_df.merge(len_series, on='unique_id')
+    test_df['ds'] = test_df['ds'] + test_df['len_serie'] - 1
+    test_df = test_df[['unique_id','ds','y']]
 
-  df = pd.concat((train_df,test_df))
-  df = df.sort_values(by=['unique_id', 'ds']).reset_index(drop=True)
+    df = pd.concat((train_df,test_df))
+    df = df.sort_values(by=['unique_id', 'ds']).reset_index(drop=True)
 
-  # Create column with dates with freq of dataset
-  len_series = df.groupby('unique_id').agg({'ds': 'max'}).reset_index()
-  dates = []
-  for i in range(len(len_series)):
-      len_serie = len_series.iloc[i,1]
-      ranges = pd.date_range(start='1970/01/01', periods=len_serie, freq=freq)
-      dates += list(ranges)
-  df.loc[:,'ds'] = dates
+    # Create column with dates with freq of dataset
+    len_series = df.groupby('unique_id').agg({'ds': 'max'}).reset_index()
+    dates = []
+    for i in range(len(len_series)):
+        len_serie = len_series.iloc[i,1]
+        if not dataset_name=='Yearly':
+            ranges = pd.date_range(start='1970/01/01', periods=len_serie, freq=freq)
+        else:
+            ranges = list(range(1900, 1900 + len_serie))
+        dates += list(ranges)
+    df.loc[:,'ds'] = dates
 
-  df = df.merge(m4_info, left_on=['unique_id'], right_on=['M4id'])
-  df.drop(columns=['M4id'], inplace=True)
-  df = df.rename(columns={'category': 'x'})
+    df = df.merge(m4_info, left_on=['unique_id'], right_on=['M4id'])
+    df.drop(columns=['M4id'], inplace=True)
+    df = df.rename(columns={'category': 'x'})
+    df = df.reset_index(drop=True)
 
-  X_train_df = df[df['split']=='train'].filter(items=['unique_id', 'ds', 'x'])
-  y_train_df = df[df['split']=='train'].filter(items=['unique_id', 'ds', 'y'])
-  X_test_df = df[df['split']=='test'].filter(items=['unique_id', 'ds', 'x'])
-  y_test_df = df[df['split']=='test'].filter(items=['unique_id', 'ds', 'y'])
+    output_directory = data_directory + "/{}.csv".format(dataset_name)
+    df.to_csv(output_directory, index=False)
 
-  X_train_df = X_train_df.reset_index(drop=True)
-  y_train_df = y_train_df.reset_index(drop=True)
-  X_test_df = X_test_df.reset_index(drop=True)
-  y_test_df = y_test_df.reset_index(drop=True)
+    return df
 
-  return X_train_df, y_train_df, X_test_df, y_test_df
+def prepare_data(directory, h):
+    # For testing purpose, create datasets
+    if not os.path.exists(directory):
+        dataset_names = ['Hourly', 'Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly']
+        for dataset_name in dataset_names:
+            m4_parser(dataset_name=dataset_name, directory='./data', num_obs=200)
+
+    # Read data, parse and sort
+    print("directory", directory)
+    df = pd.read_csv(directory)
+    if not directory=='./data/m4/Yearly.csv':
+        df['ds'] = pd.to_datetime(df['ds'])
+    df.sort_values(by=['unique_id', 'ds'], inplace=True)
+
+    # Create column with train test split of dataset
+    len_series = df.groupby('unique_id').count().reset_index()
+    split_dict = {False: 'train', True: 'test'}
+    splits = []
+    for i in range(len(len_series)):
+        len_serie = len_series.iloc[i,1]
+        ranges = np.arange(len_serie)
+        ranges = ranges>=len_serie-h
+        split = [split_dict[x] for x in ranges]
+        splits += list(split)
+    df.loc[:,'split'] = splits
+
+    X_train_df = df[df['split']=='train'].filter(items=['unique_id', 'ds', 'x'])
+    y_train_df = df[df['split']=='train'].filter(items=['unique_id', 'ds', 'y'])
+    X_test_df = df[df['split']=='test'].filter(items=['unique_id', 'ds', 'x'])
+    y_test_df = df[df['split']=='test'].filter(items=['unique_id', 'ds', 'y'])
+
+    X_train_df = X_train_df.reset_index(drop=True)
+    y_train_df = y_train_df.reset_index(drop=True)
+    X_test_df = X_test_df.reset_index(drop=True)
+    y_test_df = y_test_df.reset_index(drop=True)
+
+    return X_train_df, y_train_df, X_test_df, y_test_df

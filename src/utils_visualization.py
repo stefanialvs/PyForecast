@@ -21,7 +21,7 @@ model_colors = {'train': 'blue',
                 'MovingAverage': 'purple',
                 'SeasonalMovingAverage': 'blue'}
 
-def plot_single_serie(uid_df, title, ax, models, plt_h=60):
+def plot_single_serie(uid_df, title, ax, models, plt_h):
     """
     uid_df: pandas df
     panel with columns unique_id, ds, y, split
@@ -58,7 +58,7 @@ def plot_single_serie(uid_df, title, ax, models, plt_h=60):
     
     return lines
 
-def plot_grid_series(y, uids, models):
+def plot_grid_series(y, uids, models, plt_h):
     assert len(uids)==8
     
     fig, axs = plt.subplots(2, 4, figsize=(20, 7))
@@ -72,7 +72,8 @@ def plot_grid_series(y, uids, models):
         row = int(np.round(i/8 + 0.001))
         col = i % 4
         
-        lines = plot_single_serie(uid_df, title=uid, ax=axs[row, col], models=models)
+        lines = plot_single_serie(uid_df, title=uid, ax=axs[row, col], 
+                                  models=models, plt_h=plt_h)
     
     legends = tuple(lines.keys())
     plots = tuple(lines.values())
