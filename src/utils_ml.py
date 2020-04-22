@@ -93,6 +93,11 @@ def ml_pipeline(directory, h, freq, models_filter, metrics_filter):
                                       seasonality=seasonality)
 
     # Pipeline results
+    plot_grid(y_df, h)
+    evaluations.to_csv('./results/metrics.csv', index=False)
+
+    return y_df
+
+def plot_grid(y_df, h):
     uids_sample = uids_filter(y_df, size=8)
     plot_grid_series(y_df, uids_sample, models, plt_h=(h*5))
-    evaluations.to_csv('./results/metrics.csv', index=False)
