@@ -93,7 +93,7 @@ def ml_pipeline(directory, h, freq, models_filter, metrics_filter):
                                       seasonality=seasonality)
 
     # Pipeline results
-    plot_grid(y_df, h)
+    plot_grid(y_df, models, h)
     evaluations.to_csv('./results/metrics.csv', index=False)
 
     return y_df, models
