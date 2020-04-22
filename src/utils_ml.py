@@ -96,8 +96,8 @@ def ml_pipeline(directory, h, freq, models_filter, metrics_filter):
     plot_grid(y_df, h)
     evaluations.to_csv('./results/metrics.csv', index=False)
 
-    return y_df
+    return y_df, models
 
-def plot_grid(y_df, h):
+def plot_grid(y_df, models, h):
     uids_sample = uids_filter(y_df, size=8)
     plot_grid_series(y_df, uids_sample, models, plt_h=(h*5))
