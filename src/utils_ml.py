@@ -14,10 +14,9 @@ from src.utils_visualization import plot_grid_series
 # PARSE USER INTERACTION
 ######################################################################
 
-def button_models_metrics_filter(dataset_name, models_filter, metrics_filter):
+def models_metrics_filter(h, freq, models_filter, metrics_filter):
     # Parse time series arguments
-    h = seas_dict[dataset_name]['output_size']
-    seasonality = seas_dict[dataset_name]['seasonality']
+    seasonality = seas_dict[freq]['seasonality']
     
     models = {'Naive':  Naive(h=h),
               'SeasonalNaive': SeasonalNaive(h=h, seasonality=seasonality),
@@ -37,31 +36,30 @@ def button_models_metrics_filter(dataset_name, models_filter, metrics_filter):
     
     return models, metrics
 
-def button_uids_filter(y_df, size=8):
+def uids_filter(y_df, size=8):
     uids = y_df.index.get_level_values('unique_id').unique()
     uids_sample = np.random.choice(uids, size=8)
     return uids_sample
+
 
 ######################################################################
 # MACHINE LEARNING PIPELINE
 ######################################################################
 
-def ml_pipeline(dataset_name, num_obs, models_filter, metrics_filter, h):
+def ml_pipeline(directory, h, freq, models_filter, metrics_filter):
     # Set random seeds
     np.random.seed(1)
 
     # Filter models and metrics
-    models, metrics = button_models_metrics_filter(dataset_name, models_filter, metrics_filter)
+    models, metrics = models_metrics_filter(h, freq,
+                                            models_filter, metrics_filter)
 
 
     # Parse arguments
-    # h = seas_dict[dataset_name]['output_size']
-    seasonality = seas_dict[dataset_name]['seasonality']
+    seasonality = seas_dict[freq]['seasonality']
     
     # Read data
-    directory = './data/'
-    #X_train_df, y_train_df, X_test_df, y_test_df = m4_parser(dataset_name, directory, num_obs)
-    X_train_df, y_train_df, X_test_df, y_test_df = prepare_m4_data(dataset_name, directory, num_obs, h)
+    X_train_df, y_train_df, X_test_df, y_test_df = prepare_data(directory, h)
 
     # Pre sort dataframes for efficiency
     X_train_df = X_train_df.set_index(['unique_id', 'ds']).sort_index()
@@ -95,6 +93,6 @@ def ml_pipeline(dataset_name, num_obs, models_filter, metrics_filter, h):
                                       seasonality=seasonality)
 
     # Pipeline results
-    uids_sample = button_uids_filter(y_df, size=8)
-    plot_grid_series(y_df, uids_sample, models)
+    uids_sample = uids_filter(y_df, size=8)
+    plot_grid_series(y_df, uids_sample, models, plt_h=(h*5))
     evaluations.to_csv('./results/metrics.csv', index=False)
