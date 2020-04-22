@@ -6,7 +6,7 @@ import pandas as pd
 
 
 from src.benchmarks import *
-from src.utils_data import m4_parser, seas_dict
+from src.utils_data import prepare_data, seas_dict
 from src.utils_evaluation import *
 from src.utils_visualization import plot_grid_series
 
