@@ -50,6 +50,7 @@ def plot_single_serie(uid_df, title, ax, models, plt_h):
                                     color=model_colors[model_name])[0]
     
     # rotate x axis
+    ax.grid(True)
     ax.tick_params(axis='x', rotation=45)
     ax.tick_params(axis='y')
     ax.set_xlabel('Date Stamp')
@@ -95,27 +96,26 @@ def plot_grid_series(y, uids, models, plt_h):
 
 def plot_distributions(distributions_dict, fig_title=None, xlabel=None):
     n_distributions = len(distributions_dict.keys())
-    fig, ax = plt.subplots(1, figsize=(7, 5.5))
+    fig, ax = plt.subplots(1, figsize=(6, 3.5))
     plt.subplots_adjust(wspace=0.35)
     
     n_colors = len(distributions_dict.keys())
     colors = sns.color_palette("hls", n_colors)
     
     for idx, dist_name in enumerate(distributions_dict.keys()):
-        train_dist_plot = sns.kdeplot(distributions_dict[dist_name],
-                                      bw='silverman',
-                                      label=dist_name,
-                                      color=colors[idx])
-        if xlabel is not None:
-          ax.set_xlabel(xlabel, fontsize=14)
-        ax.set_ylabel('Density', fontsize=14)
+        dist_plot = sns.kdeplot(distributions_dict[dist_name],
+                                bw='silverman',
+                                label=dist_name,
+                                color=model_colors[dist_name])
+        
+        
         ax.set_title(fig_title, fontsize=15.5)
         ax.grid(True)
-        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))    
+        ax.legend(loc='center left', frameon=False, bbox_to_anchor=(1, 0.5))    
     
+    ax.set_ylabel('Density', fontsize=14)
+    ax.set_xlabel('Per Series SMAPE', fontsize=14)
+
     fig.tight_layout()
-    if fig_title is not None:
-        fig_title = fig_title.replace(' ', '_')
-        plot_file = "./results/{}_distributions.png".format(fig_title)
-        plt.savefig(plot_file, bbox_inches = "tight", dpi=300)
-    plt.show()
+    plot_file = "./results/residuals_distribution.png"
+    plt.savefig(plot_file, bbox_inches = "tight", dpi=52)

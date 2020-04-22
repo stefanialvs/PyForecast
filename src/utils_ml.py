@@ -8,7 +8,7 @@ import pandas as pd
 from src.benchmarks import *
 from src.utils_data import prepare_data, seas_dict
 from src.utils_evaluation import *
-from src.utils_visualization import plot_grid_series
+from src.utils_visualization import plot_grid_series, plot_distributions
 
 ######################################################################
 # PARSE USER INTERACTION
@@ -91,6 +91,14 @@ def ml_pipeline(directory, h, freq, models_filter, metrics_filter):
     evaluations = compute_evaluations(y_test=y_test_df, y_hat=y_hat_df, 
                                       y_train=y_train_df, metrics=metrics, 
                                       seasonality=seasonality)
+
+    # Compute SMAPE residuals
+    residuals_dict = {}
+    for col in y_hat_df.columns:
+        residuals_dict[col] = evaluate_panel(y_test=y_test_df, y_hat=y_hat_df[col],
+                                             y_train=y_train_df, metric=smape,
+                                             seasonality=seasonality)
+    plot_distributions(residuals_dict)
 
     # Pipeline results
     plot_grid(y_df, models, h)
