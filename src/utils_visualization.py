@@ -111,7 +111,8 @@ def plot_distributions(distributions_dict, fig_title=None, xlabel=None):
         
         ax.set_title(fig_title, fontsize=15.5)
         ax.grid(True)
-        ax.legend(loc='center left', frameon=False, bbox_to_anchor=(1, 0.5))    
+        ax.legend(loc='center left', frameon=False, bbox_to_anchor=(1, 0.5),
+                    fontsize='large')    
     
     ax.set_ylabel('Density', fontsize=14)
     ax.set_xlabel('Per Series SMAPE', fontsize=14)
