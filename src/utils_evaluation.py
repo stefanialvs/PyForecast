@@ -1,3 +1,6 @@
+# some evaluation utility was obtained and adapted from
+# https://github.com/Mcompetitions/M4-methods
+
 import numpy as np
 from numpy.random import seed
 seed(1)

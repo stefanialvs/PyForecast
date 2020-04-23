@@ -1,3 +1,6 @@
+# Data was obtained from
+# https://github.com/Mcompetitions/M4-methods/tree/master/Dataset
+
 import os
 from six.moves import urllib
 
