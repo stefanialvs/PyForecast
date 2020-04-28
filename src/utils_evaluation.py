@@ -1,5 +1,19 @@
-# some evaluation utility was obtained and adapted from
-# https://github.com/Mcompetitions/M4-methods
+"""
+ALGORITHMIC COMPLEXITY
+I wrapped these algorithms using the BaseEstimator class from sklearn that allows me to 
+inherit a lot of utility.
+1) MSE: This metric was coded from scratch.
+2) RMSE: This metric was coded from scratch.
+3) MAPE: This metric was coded from scratch.
+4) SMAPE: This metric was adapted almost completely from its original implementation 
+   availabel at this web page:
+   https://github.com/Mcompetitions/M4-methods/blob/master/ML_benchmarks.py. 
+5) MASE: This metric was adapted almost completely from its original implementation 
+   availabel at this web page:
+   https://github.com/Mcompetitions/M4-methods/blob/master/ML_benchmarks.py.
+6) RMSSE: This metric was coded from scratch.
+"""
+
 
 import numpy as np
 from numpy.random import seed
