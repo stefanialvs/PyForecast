@@ -46,7 +46,7 @@ def uids_filter(y_df, size=8):
 # MACHINE LEARNING PIPELINE
 ######################################################################
 
-def ml_pipeline(directory, h, freq, models_filter, metrics_filter):
+def ml_pipeline(directory, h, freq, models_filter, metrics_filter, progress_bar):
     # Set random seeds
     np.random.seed(1)
 
@@ -70,15 +70,19 @@ def ml_pipeline(directory, h, freq, models_filter, metrics_filter):
     # Fit and predict benchmark models
     preds = [y_test_df.y]
     print("\n Fitting models")
+    k = 0
+    progress_bar['maximum']=len(models.items()) + len(metrics.items())
     for model_name, model in models.items():
         print(model_name)
-        
         panel_model = PanelModel(model)
         panel_model.fit(X_train_df, y_train_df)
         mod_preds = panel_model.predict(X_test_df)
         
         mod_preds.name = model_name
         preds.append(mod_preds)
+        k += 1
+        progress_bar['value']=k
+        progress_bar.update()
     
     # Merge y_df for visualization purpose
     y_hat_df = pd.concat(preds, axis=1)
@@ -90,7 +94,7 @@ def ml_pipeline(directory, h, freq, models_filter, metrics_filter):
     y_hat_df = y_hat_df.drop(['split', 'y'], axis=1)
     evaluations = compute_evaluations(y_test=y_test_df, y_hat=y_hat_df, 
                                       y_train=y_train_df, metrics=metrics, 
-                                      seasonality=seasonality)
+                                      seasonality=seasonality, progress_bar=progress_bar)
 
     # Compute SMAPE residuals
     residuals_dict = {}

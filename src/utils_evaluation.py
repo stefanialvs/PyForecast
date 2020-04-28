@@ -9,7 +9,7 @@ inherit a lot of utility.
    availabel at this web page:
    https://github.com/Mcompetitions/M4-methods/blob/master/ML_benchmarks.py. 
 5) MASE: This metric was adapted almost completely from its original implementation 
-   availabel at this web page:
+   available at this web page:
    https://github.com/Mcompetitions/M4-methods/blob/master/ML_benchmarks.py.
 6) RMSSE: This metric was coded from scratch.
 """
@@ -192,7 +192,8 @@ def evaluate_panel(y_test, y_hat, y_train,
     evaluations = pd.Series(evaluations, index=idxs)
     return evaluations
 
-def compute_evaluations(y_test, y_hat, y_train, metrics, seasonality):
+def compute_evaluations(y_test, y_hat, y_train, metrics, seasonality, 
+                          progress_bar):
     """
     Calculates all metrics in list for y and y_hat panel data,
     and creates rank based on PCA dimensionality reduction.
@@ -225,7 +226,9 @@ def compute_evaluations(y_test, y_hat, y_train, metrics, seasonality):
                 evaluations[metric_name] = [mod_evaluation]
             else:
                 evaluations[metric_name].append(mod_evaluation)
-    
+        progress_bar['value']+=1
+        progress_bar.update()
+
     # Collapse Metrics
     for metric_name, metric in metrics.items():
         evaluations[metric_name] = pd.concat(evaluations[metric_name], axis=1)

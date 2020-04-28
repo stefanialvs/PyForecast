@@ -3,6 +3,7 @@ from tkinter import ttk
 import tkinter as tk
 from PIL import Image, ImageTk
 from pandastable import Table
+import time
 
 
 from src.utils_ml import ml_pipeline, plot_grid
@@ -50,6 +51,11 @@ def labels():
     series_img = ImageTk.PhotoImage(Image.open('./ui/series_blank.jpg'))
     series_blank = Label(image=series_img)
     series_blank.place(x=350, y=150)
+    
+    global progress
+    progress = ttk.Progressbar(root, orient='horizontal', length=200, 
+                                    mode='determinate')
+    progress.place(x=530, y=90, height=10)
 
     
 def model_buttons():
@@ -61,7 +67,7 @@ def model_buttons():
                      'Croston': {'bool': IntVar(), 'place': (170, 445)},
                      'MovingAverage': {'bool': IntVar(), 'place': (170, 470)},
                      'ESRNN': {'bool': IntVar(), 'place': (50, 495)},
-                     'SeasonalMovingAvg': {'bool': IntVar(), 'place': (170, 495)},}
+                     'SeasonalMovingAverage': {'bool': IntVar(), 'place': (170, 495)}}
     
     # Declare check buttons for each model
     for model_name in model_widgets:
@@ -148,10 +154,10 @@ def analyze():
     
     global y_df, models
     y_df, models = ml_pipeline(directory=directory, 
-                       h=h, 
-                       freq=freq, 
-                       models_filter=models_filter,
-                       metrics_filter=metrics_filter)
+                               h=h, freq=freq, 
+                               models_filter=models_filter,
+                               metrics_filter=metrics_filter,
+                               progress_bar=progress)
     
     # Plot grid
     display_grid()
@@ -176,6 +182,13 @@ def display_grid():
     plot_file = ImageTk.PhotoImage(Image.open('./results/grid_series.png'))
     plot_label = Label(image=plot_file)
     plot_label.place(x=350, y=150)
+
+def progress_bar():
+    progress['maximum']=100
+    for i in range(101):
+        time.sleep(0.05)
+        progress['value']=i
+        progress.update()
     
 ##### Selection Functions
 
