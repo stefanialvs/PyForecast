@@ -6,6 +6,7 @@ from pandastable import Table
 import time
 
 
+
 from src.utils_ml import ml_pipeline, plot_grid
 
 def labels():
@@ -66,8 +67,7 @@ def model_buttons():
                      'RandomWalkDrift': {'bool': IntVar(), 'place': (170, 420)}, 
                      'Croston': {'bool': IntVar(), 'place': (170, 445)},
                      'MovingAverage': {'bool': IntVar(), 'place': (170, 470)},
-                     'ESRNN': {'bool': IntVar(), 'place': (50, 495)},
-                     'SeasonalMovingAverage': {'bool': IntVar(), 'place': (170, 495)}}
+                     'SeasonalMovingAverage': {'bool': IntVar(), 'place': (50, 495)}}
     
     # Declare check buttons for each model
     for model_name in model_widgets:
