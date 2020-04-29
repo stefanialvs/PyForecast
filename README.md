@@ -3,11 +3,12 @@
 Repository of statistical benchmark models for time series forecasting.
 
 The repository contains the following set of benchmark models:
-- Moving Averages
 - Naive
 - Seasonal Naive
 - Naive2
 - Random Walk Drift
+- Moving Average
+- Seasonal Moving Average
 - Croston Method
 
  The repository contains the following set of evaluation metrics:
