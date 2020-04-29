@@ -122,8 +122,8 @@ def ml_pipeline(directory, h, freq, models_filter, metrics_filter, progress_bar)
         
         mod_preds.name = model_name
         preds.append(mod_preds)
-        #progress_bar['value']+=1
-        #progress_bar.update()
+        progress_bar['value']+=1
+        progress_bar.update()
     
     # Merge y_df for visualization purpose
     y_hat_df = pd.concat(preds, axis=1)
