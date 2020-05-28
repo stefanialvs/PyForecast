@@ -88,6 +88,7 @@ def plot_grid_series(y, uids, models, plt_h):
     plt.savefig(plot_file,
                 bbox_extra_artists=[lg],
                 bbox_inches = "tight", dpi=52)
+    plt.show()
     plt.close()
 
 ######################################################################

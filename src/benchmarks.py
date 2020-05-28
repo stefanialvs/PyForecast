@@ -1,25 +1,3 @@
-"""
-ALGORITHMIC COMPLEXITY
-I wrapped these algorithms using the BaseEstimator class from sklearn that allows me to 
-inherit a lot of utility.
-1) Naive: The original implementation was done in R, and I translated it.
-   The model is available at the web page 
-   https://github.com/Mcompetitions/M4-methods/blob/master/Benchmarks%20and%20Evaluation.R
-2) Seasonal Naive:The original implementation was done in R, and I translated it.
-   The model is available at the web page 
-   https://github.com/Mcompetitions/M4-methods/blob/master/Benchmarks%20and%20Evaluation.R
-3) Naive2: The original implementation was done in R, and I translated it.
-   This model was coded from scratch but using utility functions such 
-   as deseasonalize, detrend, moving averages, acf, and seasonality_test, all
-   of this utility is under Naive2 utils. They are available at this web page
-   https://github.com/Mcompetitions/M4-methods/blob/master/ML_benchmarks.py.
-4) RandomWalkDrift: This model was coded from scratch.
-5) Croston: This model was coded from scratch.
-6) MovingAverage: This model was coded from scratch.
-7) SeasonalMovingAverage: This model was coded from scratch.
-"""
-
-
 import numpy as np
 from numpy.random import seed
 seed(1)

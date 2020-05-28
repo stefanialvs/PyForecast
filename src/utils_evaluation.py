@@ -1,20 +1,3 @@
-"""
-ALGORITHMIC COMPLEXITY
-I wrapped these algorithms using the BaseEstimator class from sklearn that allows me to 
-inherit a lot of utility.
-1) MSE: This metric was coded from scratch.
-2) RMSE: This metric was coded from scratch.
-3) MAPE: This metric was coded from scratch.
-4) SMAPE: This metric was adapted almost completely from its original implementation 
-   availabel at this web page:
-   https://github.com/Mcompetitions/M4-methods/blob/master/ML_benchmarks.py. 
-5) MASE: This metric was adapted almost completely from its original implementation 
-   available at this web page:
-   https://github.com/Mcompetitions/M4-methods/blob/master/ML_benchmarks.py.
-6) RMSSE: This metric was coded from scratch.
-"""
-
-
 import numpy as np
 from numpy.random import seed
 seed(1)
@@ -192,8 +175,7 @@ def evaluate_panel(y_test, y_hat, y_train,
     evaluations = pd.Series(evaluations, index=idxs)
     return evaluations
 
-def compute_evaluations(y_test, y_hat, y_train, metrics, seasonality, 
-                          progress_bar):
+def compute_evaluations(y_test, y_hat, y_train, metrics, seasonality): #, progress_bar
     """
     Calculates all metrics in list for y and y_hat panel data,
     and creates rank based on PCA dimensionality reduction.
@@ -226,8 +208,8 @@ def compute_evaluations(y_test, y_hat, y_train, metrics, seasonality,
                 evaluations[metric_name] = [mod_evaluation]
             else:
                 evaluations[metric_name].append(mod_evaluation)
-        progress_bar['value']+=1
-        progress_bar.update()
+        #progress_bar['value']+=1
+        #progress_bar.update()
 
     # Collapse Metrics
     for metric_name, metric in metrics.items():

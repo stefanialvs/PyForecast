@@ -79,13 +79,13 @@ def uids_filter(y_df, size=8):
 # MACHINE LEARNING PIPELINE
 ######################################################################
 
-def ml_pipeline(directory, h, freq, models_filter, metrics_filter, progress_bar):
+def ml_pipeline(directory, h, freq, models, metrics): #, progress_bar
     # Set random seeds
     np.random.seed(1)
 
     # Filter models and metrics
-    models, metrics = models_metrics_filter(h, freq,
-                                            models_filter, metrics_filter)
+    #models, metrics = models_metrics_filter(h, freq,
+    #                                        models_filter, metrics_filter)
 
 
     # Parse arguments
@@ -103,8 +103,8 @@ def ml_pipeline(directory, h, freq, models_filter, metrics_filter, progress_bar)
     # Fit and predict benchmark models
     preds = [y_test_df.y]
     print("\n Fitting models")
-    progress_bar['maximum']=len(models.items()) + len(metrics.items())
-    progress_bar['value']=0
+    #progress_bar['maximum']=len(models.items()) + len(metrics.items())
+    #progress_bar['value']=0
     for model_name, model in models.items():
         print(model_name)
         
@@ -122,8 +122,8 @@ def ml_pipeline(directory, h, freq, models_filter, metrics_filter, progress_bar)
         
         mod_preds.name = model_name
         preds.append(mod_preds)
-        progress_bar['value']+=1
-        progress_bar.update()
+        #progress_bar['value']+=1
+        #progress_bar.update()
     
     # Merge y_df for visualization purpose
     y_hat_df = pd.concat(preds, axis=1)
@@ -135,7 +135,7 @@ def ml_pipeline(directory, h, freq, models_filter, metrics_filter, progress_bar)
     y_hat_df = y_hat_df.drop(['split', 'y'], axis=1)
     evaluations = compute_evaluations(y_test=y_test_df, y_hat=y_hat_df, 
                                       y_train=y_train_df, metrics=metrics, 
-                                      seasonality=seasonality, progress_bar=progress_bar)
+                                      seasonality=seasonality) #, progress_bar=progress_bar
 
     # Compute SMAPE residuals
     residuals_dict = {}
