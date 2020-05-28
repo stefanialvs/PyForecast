@@ -22,6 +22,9 @@ An example of use of the code is available in the proof_of_concept.ipynb noteboo
 
 To test the repository tools we use the data available at the [M4 Forecasting Competition](https://www.researchgate.net/publication/325901666_The_M4_Competition_Results_findings_conclusion_and_way_forward).
 
+## License
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/stefanialvs/PyForecast/blob/master/LICENSE) file for details.
+
 ## REFERENCES
 1. [The M4 Competition: Results, findings, conclusion and way forward](https://www.researchgate.net/publication/325901666_The_M4_Competition_Results_findings_conclusion_and_way_forward)
 2. [M5-Competitors-Guide_Final-1](https://mk0mcompetitiont8ake.kinstacdn.com/wp-content/uploads/2020/02/M5-Competitors-Guide_Final-1.pdf)
